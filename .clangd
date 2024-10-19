@@ -1,0 +1,8 @@
+CompileFlags:
+    Add:
+        - "--include-directory=/usr/include"
+        - "--include-directory=/usr/local/share/clasp/include"
+        - "--include-directory=/var/data/local_projects/clasp-extensions/rti_connext_dds_professional/3rdparty/rti_connext_dds-7.3.0/include/ndds/hpp"
+        - "--include-directory=/var/data/local_projects/thingbone/include"
+        - "--include-directory=/var/data/projects/swdev/thingbone/include"
+        - "-I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Kernel.framework/Headers"
