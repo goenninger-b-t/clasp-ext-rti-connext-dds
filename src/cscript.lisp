@@ -1,1 +1,1 @@
-(k:recurse #p "c_src/")
+(k:recurse #p"lisp/" #p"c_src/")

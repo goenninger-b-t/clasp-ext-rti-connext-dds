@@ -1,5 +1,2 @@
-(k:sources :iclasp #~"main.cxx")
-
-;;(k:systems :rti-connext-dds-professional)
-
+(k:sources :iclasp #~"main.cc")
 

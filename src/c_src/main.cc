@@ -26,14 +26,13 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-#include <stdbool>
 #include <cstdint>
 #include <cstdarg>
 #include <unistd.h>
 #include <libgen.h>
+#include <string>
 
 // -- LOCAL UTILS ---
-
 static void debugprint ( const char * filepath, uint64_t line, const char * fmt, ... )
 {
   char            va_buffer [ 32768 ];
@@ -53,8 +52,7 @@ static void debugprint ( const char * filepath, uint64_t line, const char * fmt,
   if ( ( clock_rc != 0 ) && ( clock_gettime_warned_already == false ) )
   {
     clock_gettime_warned_already = true;
-    fprintf ( stderr, "CLBIND/RTI-CONNEXT_DDS (%s:%d) | **  [WARNING  ] | Could not get timestamp ... (This warning will only be printed once).",
-              basename ( __FILE__ ), __LINE__ );
+    fprintf ( stderr, "CLBIND/RTI-CONNEXT_DDS | **  [WARNING  ] | Could not get timestamp ... (This warning will only be printed once).");
 
     timespec.tv_sec  = 0;
     timespec.tv_nsec = 0;
@@ -62,7 +60,7 @@ static void debugprint ( const char * filepath, uint64_t line, const char * fmt,
 
   strftime ( time_buffer, 128, "%FT%T", gmtime ( (const long *) &(timespec.tv_sec ) ) );
   size_t cstr_length =  strlen ( time_buffer );
-  snprintf ( &time_buffer[ cstr_length ], 128 - cstr_length, ".%09llu+00Z", timespec.tv_nsec );
+  snprintf ( &time_buffer[ cstr_length ], 128 - cstr_length, ".%09ld+00Z", timespec.tv_nsec );
 
   va_list arg_ptr;
   va_start ( arg_ptr, fmt );
@@ -72,11 +70,11 @@ static void debugprint ( const char * filepath, uint64_t line, const char * fmt,
   if ( snprintf ( msg_buffer, 32768, "%s | %s (%s:%llu) | %s | %s\n",
                   time_buffer,
                   "    [DEBUG    ]",
-                  basename ( filepath ), line, "CLB",
+                  basename ( const_cast< char * >( filepath ) ), line, "CLB",
                   va_buffer ) < 0 )
   {
-    fprintf ( stderr, "CLBIND/RTI-CONNEXT-DDS (%s:%d) | Process with pid %d ABORTING due to message buffer overrun!\n",
-              basename ( __FILE__ ), __LINE__, (int) getpid () );
+    fprintf ( stderr, "CLBIND/RTI-CONNEXT-DDS | Process with pid %d ABORTING due to message buffer overrun!\n",
+              (int) getpid () );
     abort ();
   }
 
@@ -86,9 +84,6 @@ static void debugprint ( const char * filepath, uint64_t line, const char * fmt,
 }
 
 #define DEBUGPRINT(fmt,...) debugprint(  __FILE__ , __LINE__, __VA_ARGS__ )
-#define TRACE_ENTRY()  DEBUGPRINT( "ENTRY: %s", __FUNCTION__ )
-#define TRACE_EXIT()   DEBUGPRINT( "EXIT: %s",  __FUNCTION__ )
-
 
 // --- PACKAGE ---
 
@@ -102,27 +97,13 @@ namespace rti_connext_dds
 {
    CL_EXPOSE void rti_connext_dds_start( void )
    {
-     TRACE_ENTRY();
-
      using namespace clbind;
 
      using namespace dds::all; // This brings all DDS symbols into the rti_connext_dds namespace
 
-     package_ s( RTIConnextDDSPkg );
+     package_ p( RTIConnextDDSPkg );
 
-     s.class_< DomainParticipant >( s, "domain-participant" );
-
-     TRACE_EXIT();
-   }
-
-   CL_EXPOSE void rti_connext_dds_stop( void )
-   {
-     TRACE_ENTRY();
-
-     // Currently NOP
-
-     TRACE_EXIT();
+     class_< DomainParticipant >( p, "domain-participant" );
 
    }
-
 } // namespace rti_connext_dds
