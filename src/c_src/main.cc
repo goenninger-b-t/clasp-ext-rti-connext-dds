@@ -83,7 +83,9 @@ static void debugprint ( const char * filepath, uint64_t line, const char * fmt,
   return;
 }
 
-#define DEBUGPRINT(fmt,...) debugprint(  __FILE__ , __LINE__, __VA_ARGS__ )
+#define DEBUGPRINT(fmt,...) debugprint(  __FILE__ , __LINE__,  fmt, __VA_ARGS__ )
+#define TRACE_ENTRY() debugprint( __FILE__ , __LINE__, "ENTRY: %s", __FUNCTION__ )
+#define TRACE_EXIT()  debugprint( __FILE__ , __LINE__, "EXIT:  %s", __FUNCTION__ )
 
 // --- PACKAGE ---
 
@@ -97,13 +99,18 @@ namespace rti_connext_dds
 {
    CL_EXPOSE void rti_connext_dds_start( void )
    {
+     TRACE_ENTRY ();
+     
      using namespace clbind;
 
      using namespace dds::all; // This brings all DDS symbols into the rti_connext_dds namespace
 
      package_ p( RTIConnextDDSPkg );
 
-     class_< DomainParticipant >( p, "domain-participant" );
+     class_< DomainParticipant >( p, "domain-participant" )
+       .def_constructor( "make-domain-participant", constructor<uint32_t>());
 
+     
+     TRACE_EXIT ();
    }
 } // namespace rti_connext_dds
